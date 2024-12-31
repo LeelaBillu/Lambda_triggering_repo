@@ -3,7 +3,7 @@ name: Terragrunt Plan on Pull Request
 on:
   pull_request:
     branches:
-      - main  # Trigger this workflow for pull requests targeting the 'main' branch
+      - main
 
 jobs:
   terragrunt:
@@ -20,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Set your desired AWS region
+          aws-region: us-east-1
 
       # Step 3: Install Terraform (if not already installed)
       - name: Set Terraform
@@ -28,15 +28,18 @@ jobs:
         with:
           terraform_version: "1.5.5"
 
-      # Step 4: Set up Terragrunt
-      - name: Set up Terragrunt
+      # Step 4: Set up Terragrunt and run init
+      - name: Set up Terragrunt and run init
         uses: the-commons-project/terragrunt-github-actions@1.0.6
+        with:
+          terraform_subcommand: "init"
+          terragrunt_subcommand: "run-all init"
 
       # Step 5: Set up Python environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'  # Set the Python version you need (e.g., 3.8)
+          python-version: '3.8'
 
       # Step 6: Create virtual environment and install boto3
       - name: Create virtual environment and install boto3
@@ -45,11 +48,11 @@ jobs:
           source venv/bin/activate
           pip install boto3
 
-      # Step 7: Zip the Python file (in the lambda directory)
+      # Step 7: Zip the Python file
       - name: Zip the Python file
-        working-directory: ./lambda  # Run the zip step inside the lambda directory
+        working-directory: ./lambda
         run: |
-          source ../venv/bin/activate  # Activate the venv if needed (adjust path if required)
+          source ../venv/bin/activate
           zip -r lambda_function_payload.zip lambda_function.py
 
       # Step 8: Initialize Terragrunt
@@ -57,12 +60,14 @@ jobs:
         working-directory: ./Env
         run: terragrunt run-all init
 
-      # Step 9: Run Terraform Plan
+      # Step 9: Run Terraform Plan with Terragrunt
       - name: Run Terraform Plan
         working-directory: ./Env
-        run: terragrunt run-all plan -lock=false
+        uses: the-commons-project/terragrunt-github-actions@1.0.6
+        with:
+          terraform_subcommand: "plan"
+          terragrunt_subcommand: "run-all plan -lock=false"
 
-      # # Step 10: Apply Terraform Changes (optional, cautious step)
+      # Step 10: Apply Terraform Changes (optional)
       # - name: Run Terraform Apply
-      #   working-directory: ./Env
       #   run: terragrunt run-all apply -auto-approve -lock=false
