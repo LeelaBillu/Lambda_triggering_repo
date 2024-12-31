@@ -9,9 +9,9 @@ jobs:
   terragrunt:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./Env  # Default working directory for all steps (Env)
+    # defaults:
+    #   run:
+    #     working-directory: ./Env  # Default working directory for all steps (Env)
 
     steps:
       # Step 1: Checkout the code from the repository
@@ -58,10 +58,12 @@ jobs:
 
       # Step 8: Initialize Terragrunt
       - name: Terragrunt Init
+        working-directory: ./Env
         run: terragrunt run-all init
 
       # Step 9: Run Terraform Plan
       - name: Run Terraform Plan
+        working-directory: ./Env
         run: terragrunt run-all plan -lock=false
 
       # # Step 10: Apply Terraform Changes (optional, cautious step)
