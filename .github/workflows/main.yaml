@@ -28,12 +28,12 @@ jobs:
         with:
           terraform_version: "1.5.5"
 
-      # Step 4: Set up Terragrunt and run init
-      - name: Set up Terragrunt and run init
-        uses: the-commons-project/terragrunt-github-actions@1.0.6
-        with:
-          terraform_subcommand: "init"
-          terragrunt_subcommand: "run-all init"
+      # Step 4: Set up Terragrunt
+      - name: Install Terragrunt
+        run: |
+          curl -sLo /tmp/terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v0.44.0/terragrunt_linux_amd64
+          sudo mv /tmp/terragrunt /usr/local/bin/terragrunt
+          sudo chmod +x /usr/local/bin/terragrunt
 
       # Step 5: Set up Python environment
       - name: Set up Python
@@ -55,7 +55,7 @@ jobs:
           source ../venv/bin/activate
           zip -r lambda_function_payload.zip lambda_function.py
 
-      # Step 8: Initialize Terragrunt
+      # Step 8: Initialize Terragrunt (using Terragrunt directly)
       - name: Terragrunt Init
         working-directory: ./Env
         run: terragrunt run-all init
@@ -63,10 +63,7 @@ jobs:
       # Step 9: Run Terraform Plan with Terragrunt
       - name: Run Terraform Plan
         working-directory: ./Env
-        uses: the-commons-project/terragrunt-github-actions@1.0.6
-        with:
-          terraform_subcommand: "plan"
-          terragrunt_subcommand: "run-all plan -lock=false"
+        run: terragrunt run-all plan -lock=false
 
       # Step 10: Apply Terraform Changes (optional)
       # - name: Run Terraform Apply
