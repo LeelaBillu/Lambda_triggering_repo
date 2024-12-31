@@ -52,7 +52,6 @@ jobs:
       - name: Zip the Python file
         working-directory: ./lambda
         run: |
-          source ../venv/bin/activate
           zip -r lambda_function_payload.zip lambda_function.py
 
       # Step 8: Initialize Terragrunt (using Terragrunt directly)
