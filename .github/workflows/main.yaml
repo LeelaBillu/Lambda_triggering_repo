@@ -9,10 +9,6 @@ jobs:
   terragrunt:
     runs-on: ubuntu-latest
 
-    # defaults:
-    #   run:
-    #     working-directory: ./Env  # Default working directory for all steps (Env)
-
     steps:
       # Step 1: Checkout the code from the repository
       - name: Checkout code
@@ -27,7 +23,7 @@ jobs:
           aws-region: us-east-1  # Set your desired AWS region
 
       # Step 3: Install Terraform (if not already installed)
-      - name: Set Terraform 
+      - name: Set Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.5.5"
@@ -53,7 +49,7 @@ jobs:
       - name: Zip the Python file
         working-directory: ./lambda  # Run the zip step inside the lambda directory
         run: |
-          source ../venv/bin/activate  # Activate the venv if needed
+          source ../venv/bin/activate  # Activate the venv if needed (adjust path if required)
           zip -r lambda_function_payload.zip lambda_function.py
 
       # Step 8: Initialize Terragrunt
@@ -68,4 +64,5 @@ jobs:
 
       # # Step 10: Apply Terraform Changes (optional, cautious step)
       # - name: Run Terraform Apply
+      #   working-directory: ./Env
       #   run: terragrunt run-all apply -auto-approve -lock=false
